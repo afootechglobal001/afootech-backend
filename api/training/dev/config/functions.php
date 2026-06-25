@@ -107,11 +107,11 @@ function _get_course_details($conn, $courseId)
 }
 
 /// get program course duration details
-function _get_program_course_duration_details($conn, $programId, $courseId, $durationId)
+function _get_program_course_duration_details($conn, $durationId)
 {
-    $getQuery = "SELECT * FROM PROGRAM_COURSE_DURATION_TAB WHERE programId = ? AND courseId = ? AND durationId = ?";
-    $getParams = [$programId, $courseId, $durationId];
-    $getResult = selectQuery($conn, $getQuery, 'sss', $getParams);
+    $getQuery = "SELECT * FROM PROGRAM_COURSE_DURATION_TAB WHERE durationId = ?";
+    $getParams = [$durationId];
+    $getResult = selectQuery($conn, $getQuery, 's', $getParams);
     return ($getResult[0]);
 }
 

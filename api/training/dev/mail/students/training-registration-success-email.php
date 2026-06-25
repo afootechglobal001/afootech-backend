@@ -63,7 +63,7 @@ $trainingStatusData = _get_status_details($conn, $trainingStatusId);
 $trainingStatusName = $trainingStatusData['statusName'];
 
 /// get program course duration details
-$programCourseDurationData = _get_program_course_duration_details($conn, $programId, $courseId, $durationId);
+$programCourseDurationData = _get_program_course_duration_details($conn, $durationId);
 $durationName = $programCourseDurationData['durationName'];
 $tuitionFee = $programCourseDurationData['tuitionFee'];
 
