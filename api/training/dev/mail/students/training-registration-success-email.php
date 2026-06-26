@@ -138,7 +138,7 @@ try {
 
     $recieverName = $firstName . ' ' . $lastName;
     $sendTo = $emailAddress;
-    $subject = "Training Registration Successful - $programName - $courseName - $studentId";
+    $subject = "$recieverName Training Registration Successful - $programName - $courseName - $studentId";
 
 
     $message = '

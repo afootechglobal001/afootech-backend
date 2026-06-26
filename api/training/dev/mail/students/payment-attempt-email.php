@@ -17,6 +17,7 @@ $matricNumber = $studentData['matricNumber'];
 $programId = $studentData['programId'];
 $courseId = $studentData['courseId'];
 $durationId = $studentData['durationId'];
+$registrationDate = $studentData['createdTime'];
 
 
 /// get institution type details
@@ -144,10 +145,6 @@ try {
                     <td style="border:1px solid #eee;"><strong>Phone Number</strong></td>
                     <td style="border:1px solid #eee;">' . $phoneNumber . '</td>
                 </tr>
-                <tr>
-                    <td style="border:1px solid #eee;"><strong>Registration Status</strong></td>
-                    <td style="border:1px solid #eee;">' . $studentStatusName . '</td>
-                </tr>
                 <tr style="background:#f9fafb;">
                     <td style="border:1px solid #eee;"><strong>Registration Date</strong></td>
                     <td style="border:1px solid #eee;">' . $registrationDate . '</td>
@@ -193,18 +190,6 @@ try {
                 <tr style="background:#f9fafb;">
                     <td style="border:1px solid #eee;"><strong>Training Duration</strong></td>
                     <td style="border:1px solid #eee;">' . $durationName . '</td>
-                </tr>
-                <tr style="background:#f9fafb;">
-                    <td style="border:1px solid #eee;"><strong>Training Status</strong></td>
-                    <td style="border:1px solid #eee;">' . $trainingStatusName . '</td>
-                </tr>
-                <tr style="background:#f9fafb;">
-                    <td style="border:1px solid #eee;"><strong>Training Start Date</strong></td>
-                    <td style="border:1px solid #eee;">' . $startDate . '</td>
-                </tr>
-                <tr style="background:#f9fafb;">
-                    <td style="border:1px solid #eee;"><strong>Training End Date</strong></td>
-                    <td style="border:1px solid #eee;">' . $endDate . '</td>
                 </tr>
             </table>
 
