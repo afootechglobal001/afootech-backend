@@ -116,6 +116,9 @@ try {
 	$dataTypes = "ssssssdsi"; // 'i' for integer, 's' for string, etc.
 	insertQuery($conn, $insertQuery, $dataTypes, $params);
 
+	//// payment attempt email notification
+	require_once('../mail/students/payment-attempt-email.php');
+
 	$response = [
 		'response' => 200,
 		'success' => true,

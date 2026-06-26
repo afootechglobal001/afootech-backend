@@ -95,7 +95,7 @@ try {
 	$deleteQuery = "DELETE FROM STUDENTS_TEMP_TAB WHERE studentId = '$studentId' AND emailAddress = '$emailAddress'";
 	deleteQuery($conn, $deleteQuery);
 
-	/* Send OTP email */
+	/* Send email */
 	require_once('../mail/students/training-registration-success-email.php');
 
 	$response = [
