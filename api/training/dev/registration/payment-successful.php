@@ -85,7 +85,7 @@ try {
 
 	$insertQuery = "INSERT INTO `STUDENTS_PROGRAM_DETAILS_TAB`
 	(`studentId`, `programId`, `courseId`, `durationId`, `trainingYear`, `certificateUrl`, `certificateStatusId`, `trainingStatusId`, `startDate`, `endDate`, `expectedTuitionFee`, `totalTuitionFeesBalance`) VALUES 
-	(?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?)";
+	(?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?)";
 	$params = [$studentId, $programId, $courseId, $durationId, $trainingYear, $certificateUrl, $certificateStatusId, $trainingStatusId, $tuitionFee, $tuitionFee];
 	$dataTypes = "ssssisiidd"; // 'i' for integer, 's' for string, etc.
 	insertQuery($conn, $insertQuery, $dataTypes, $params);
