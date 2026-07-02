@@ -51,7 +51,6 @@ $certificateStatusId = $studentProgramData['certificateStatusId'];
 $trainingStatusId = $studentProgramData['trainingStatusId'];
 $startDate = $trainingStatusId == 1 ? $studentProgramData['startDate'] : "Not Started";
 $endDate = $trainingStatusId == 1 ? $studentProgramData['endDate'] : "Not Started";
-$tuitionFee = $studentProgramData['expectedTuitionFee'];
 /// get program details
 $programData = _get_program_details($conn, $programId);
 $programName = $programData['programName'];

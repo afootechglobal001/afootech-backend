@@ -6,8 +6,8 @@ try {
 	}
 
 	//////////////////declaration of variables//////////////////////////////////////
-	$studentId = trim($_GET['studentId']);
-	$durationId = trim($_GET['durationId']);
+	$studentId = trim($data['studentId']);
+	$durationId = trim($data['durationId']);
 	$paymentMethodId = trim($data['paymentMethodId']);
 
 	////// validate empty field
@@ -42,7 +42,6 @@ try {
 	$params = [$studentId, $durationId];
 	$dataTypes = "ss"; // 'i' for integer, 's' for string
 	$studentProgramData = selectQuery($conn, $selectQuery, $dataTypes, $params);
-	$expectedTuitionFees = $studentProgramData[0]['expectedTuitionFee'];
 	$totalTuitionFeesBalance = $studentProgramData[0]['totalTuitionFeesBalance'];
 	if ($totalTuitionFeesBalance <= 0) {
 		require_once('../../mail/students/tuition-payment-success-email.php');
@@ -65,7 +64,7 @@ try {
 	$insertQuery = "INSERT INTO `PAYMENTS_TAB`
 	(`paymentId`, `studentId`, `emailAddress`, `phoneNumber`, `paymentPurposeId`, `paystackPaymentKey`, `amount`, `paymentMethodId`, `statusId`, `createdTime`, `payDate`) VALUES
 	(?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
-	$params = [$paymentId, $studentId, $emailAddress, $phoneNumber, $paymentPurposeId, $paystackPaymentKey, $expectedTuitionFees, $paymentMethodId, $statusId];
+	$params = [$paymentId, $studentId, $emailAddress, $phoneNumber, $paymentPurposeId, $paystackPaymentKey, $totalTuitionFeesBalance, $paymentMethodId, $statusId];
 	$dataTypes = "ssssssdsi"; // 'i' for integer, 's' for string, etc.
 	insertQuery($conn, $insertQuery, $dataTypes, $params);
 
@@ -80,7 +79,7 @@ try {
 			'paystackPaymentKey' => $paystackPaymentKey,
 			'paystackSecretKey' => $paystackSecretKey,
 			'paymentId' => $paymentId,
-			'amount' => $expectedTuitionFees * 100, // convert to kobo
+			'amount' => $totalTuitionFeesBalance * 100, // convert to kobo
 			'currency' => 'NGN',
 			'paymentChannel' => $paymentChannel,
 			'studentId' => $studentId,

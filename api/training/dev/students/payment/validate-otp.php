@@ -51,6 +51,7 @@ try {
 	$durationId = $studentProgramData['durationId'];
 	$startDate = $studentProgramData['startDate'];
 	$endDate = $studentProgramData['endDate'];
+	$tuitionFee = $studentProgramData['totalTuitionFeesBalance'];
 	/// get program details
 	$programData = _get_program_details($conn, $programId);
 	$programName = $programData['programName'];
@@ -63,8 +64,6 @@ try {
 	/// get program course duration details
 	$programCourseDurationData = _get_program_course_duration_details($conn, $durationId);
 	$durationName = $programCourseDurationData['durationName'];
-	$tuitionFee = $programCourseDurationData['tuitionFee'];
-
 
 	/* Send OTP email */
 	require_once('../../mail/students/verify-student-activation-otp-email.php');
