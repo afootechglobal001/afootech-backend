@@ -62,11 +62,10 @@ function _get_status_details($conn, $statusId)
     return ($getResult[0]);
 }
 
-function _get_setup_backend_settings_detail($conn, $settingsId)
+function _get_setup_backend_settings_detail($conn)
 {
-    $getQuery = "SELECT * FROM SETUP_BACKEND_SETTINGS_TAB WHERE settingsId = ?";
-    $getParams = [$settingsId];
-    $getResult = selectQuery($conn, $getQuery, 's', $getParams);
+    $getQuery = "SELECT * FROM SETUP_BACKEND_SETTINGS_TAB WHERE settingsId = 'S001'";
+    $getResult = selectQuery($conn, $getQuery);
     return ($getResult[0]);
 }
 

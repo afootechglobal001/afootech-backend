@@ -74,14 +74,20 @@ try {
 	$programId = $studentData['programId'];
 	$courseId = $studentData['courseId'];
 	$durationId = $studentData['durationId'];
-	$certificateUrl = "$websiteUrl//certificate?id=$studentId";
+	$trainingYear = date("Y");
+	$certificateUrl = "$websiteUrl/certificate?id=$studentId";
 	$certificateStatusId = 3; // pending
 	$trainingStatusId = 3; // pending
+
+	/// get program course duration details
+	$programCourseDurationData = _get_program_course_duration_details($conn, $durationId);
+	$tuitionFee = $programCourseDurationData['tuitionFee'];
+
 	$insertQuery = "INSERT INTO `STUDENTS_PROGRAM_DETAILS_TAB`
-	(`studentId`, `programId`, `courseId`, `durationId`, `certificateUrl`, `certificateStatusId`, `trainingStatusId`, `startDate`, `endDate`) VALUES 
-	(?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
-	$params = [$studentId, $programId, $courseId, $durationId, $certificateUrl, $certificateStatusId, $trainingStatusId];
-	$dataTypes = "sssssii"; // 'i' for integer, 's' for string, etc.
+	(`studentId`, `programId`, `courseId`, `durationId`, `trainingYear`, `certificateUrl`, `certificateStatusId`, `trainingStatusId`, `startDate`, `endDate`, `expectedTuitionFee`, `totalTuitionFeesBalance`) VALUES 
+	(?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?)";
+	$params = [$studentId, $programId, $courseId, $durationId, $trainingYear, $certificateUrl, $certificateStatusId, $trainingStatusId, $tuitionFee, $tuitionFee];
+	$dataTypes = "ssssisiidd"; // 'i' for integer, 's' for string, etc.
 	insertQuery($conn, $insertQuery, $dataTypes, $params);
 
 	//// update PAYMENTS_TAB
@@ -96,7 +102,7 @@ try {
 	deleteQuery($conn, $deleteQuery);
 
 	/* Send email */
-	require_once('../mail/students/training-registration-success-email.php');
+	require_once('../mail/students/registration-payment-success-email.php');
 
 	$response = [
 		'response' => 200,

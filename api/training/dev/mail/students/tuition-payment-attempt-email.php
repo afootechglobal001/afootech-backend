@@ -51,6 +51,7 @@ $certificateStatusId = $studentProgramData['certificateStatusId'];
 $trainingStatusId = $studentProgramData['trainingStatusId'];
 $startDate = $trainingStatusId == 1 ? $studentProgramData['startDate'] : "Not Started";
 $endDate = $trainingStatusId == 1 ? $studentProgramData['endDate'] : "Not Started";
+$tuitionFee = $studentProgramData['expectedTuitionFee'];
 /// get program details
 $programData = _get_program_details($conn, $programId);
 $programName = $programData['programName'];
@@ -65,11 +66,10 @@ $trainingStatusName = $trainingStatusData['statusName'];
 /// get program course duration details
 $programCourseDurationData = _get_program_course_duration_details($conn, $durationId);
 $durationName = $programCourseDurationData['durationName'];
-$tuitionFee = $programCourseDurationData['tuitionFee'];
 
 
 // get payment details
-$selectQuery = "SELECT * FROM PAYMENTS_TAB WHERE studentId = ? AND paymentPurposeId = 'form'";
+$selectQuery = "SELECT * FROM PAYMENTS_TAB WHERE studentId = ? AND paymentPurposeId = 'tuition' ORDER BY payDate DESC LIMIT 1";
 $params = [$studentId];
 $dataTypes = "s"; // 'i' for integer, 's' for string, etc.
 $paymentData = selectQuery($conn, $selectQuery, $dataTypes, $params)[0];
@@ -93,7 +93,7 @@ $paymentStatusData = _get_status_details($conn, $paymentStatusId);
 $paymentStatusName = $paymentStatusData['statusName'];
 
 /// get all setup backend settings details
-$sesstingsData = _get_setup_backend_settings_detail($conn, 'S001');
+$sesstingsData = _get_setup_backend_settings_detail($conn);
 $smtpHost = $sesstingsData['smtpHost'];
 $smtpUsername = $sesstingsData['smtpUsername'];
 $smtpPassword = $sesstingsData['smtpPassword'];
@@ -107,9 +107,9 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-require '../mail/PHPMailer/src/PHPMailer.php';
-require '../mail/PHPMailer/src/SMTP.php';
-require '../mail/PHPMailer/src/Exception.php';
+require '../../mail/PHPMailer/src/PHPMailer.php';
+require '../../mail/PHPMailer/src/SMTP.php';
+require '../../mail/PHPMailer/src/Exception.php';
 
 $mail = new PHPMailer(true);
 
@@ -137,8 +137,8 @@ try {
     $mail->addReplyTo($supportEmail, $senderName); // Reply-to address
 
     $recieverName = $firstName . ' ' . $lastName;
-    $sendTo = $emailAddress;
-    $subject = "$recieverName Training Registration Successful - $programName - $courseName - $studentId";
+    $sendTo = "afootech2016@gmail.com";  // Recipient email address
+    $subject = "$recieverName Attempted Tuition Payment for $programName Training Registration on $currentDate";
 
 
     $message = '
@@ -149,15 +149,19 @@ try {
 
         <div style="padding:30px; color:#333;">
 
-            <h2 style="color:#002B71; margin-top:0;">Training Registration Successful</h2>
+            <h2 style="color:#002B71; margin-top:0;">Tuition Payment Attempted</h2>
 
             <p>Dear <strong>' . $recieverName . '</strong>,</p>
 
-            <p>Your registration for the <strong>' . $programName . '</strong> program has been successfully completed. Below are your submitted details:</p>
+            <p>Your attempt to pay tuition for the <strong>' . $programName . '</strong> program has been recorded. Below are your submitted details:</p>
 
             <!-- ================= BIO DATA ================= -->
             <h3 style="color:#002B71; margin-top:30px;">Bio Data Details</h3>
             <table width="100%" cellpadding="8" cellspacing="0" style="border-collapse:collapse; font-size:14px;">
+                <tr style="background:#f9fafb;">
+                    <td style="border:1px solid #eee;"><strong>Student ID</strong></td>
+                    <td style="border:1px solid #eee;">' . $studentId . '</td>
+                </tr>
                 <tr style="background:#f9fafb;">
                     <td style="border:1px solid #eee;"><strong>First Name</strong></td>
                     <td style="border:1px solid #eee;">' . $firstName . '</td>
@@ -174,17 +178,13 @@ try {
                     <td style="border:1px solid #eee;"><strong>Phone Number</strong></td>
                     <td style="border:1px solid #eee;">' . $phoneNumber . '</td>
                 </tr>
-                <tr>
-                    <td style="border:1px solid #eee;"><strong>Registration Status</strong></td>
-                    <td style="border:1px solid #eee;">' . $studentStatusName . '</td>
-                </tr>
                 <tr style="background:#f9fafb;">
                     <td style="border:1px solid #eee;"><strong>Registration Date</strong></td>
                     <td style="border:1px solid #eee;">' . $registrationDate . '</td>
                 </tr>                
             </table>
-            
-            <!-- ================= DOCUMENTS ================= -->
+
+             <!-- ================= DOCUMENTS ================= -->
             <h3 style="color:#002B71; margin-top:30px;">Uploaded Documents</h3>
             <div style="margin-top:10px;">
                 <p><strong>Passport Photograph:</strong></p>
@@ -231,18 +231,6 @@ try {
                     <td style="border:1px solid #eee;"><strong>Training Duration</strong></td>
                     <td style="border:1px solid #eee;">' . $durationName . '</td>
                 </tr>
-                <tr style="background:#f9fafb;">
-                    <td style="border:1px solid #eee;"><strong>Training Status</strong></td>
-                    <td style="border:1px solid #eee;">' . $trainingStatusName . '</td>
-                </tr>
-                <tr style="background:#f9fafb;">
-                    <td style="border:1px solid #eee;"><strong>Training Start Date</strong></td>
-                    <td style="border:1px solid #eee;">' . $startDate . '</td>
-                </tr>
-                <tr style="background:#f9fafb;">
-                    <td style="border:1px solid #eee;"><strong>Training End Date</strong></td>
-                    <td style="border:1px solid #eee;">' . $endDate . '</td>
-                </tr>
             </table>
 
             <!-- ================= PAYMENT DETAILS ================= -->
@@ -274,10 +262,7 @@ try {
                 </tr>
             </table>
             
-            <p style="margin-top:30px;">
-                Please Note that you will required to pay tuition fees of <strong style="color:#ff0000;">NGN' . number_format($tuitionFee, 2) . '</strong> on or before the resumption to activate your training <strong>Start Date and End Date</strong> and proceed to print or download your acceptance letter.
-            <p><strong style="color:#ff0000;">For SIWES/IT Students Only:</strong> Visit our nearest office to ensure all necessary documentation (SIWES/IT letter, Logbook and other required documents) is submitted before the training begins. For more information, please contact our support team on <strong>07050903886, 08127000262</strong> or reply to this email.</p>
-            <p style="margin-top:30px;">
+             <p style="margin-top:30px;">
                 Please keep this email for your records. If you notice any discrepancy, contact us immediately.
             </p>
 
@@ -307,7 +292,7 @@ try {
     $mail->addAddress($supportEmail, $senderName);  // Support email
 
     // Attach images
-    $mail->addEmbeddedImage('../mail/img/mail_header.jpg', 'mail_header');
+    $mail->addEmbeddedImage('../../mail/img/mail_header.jpg', 'mail_header');
 
     // Send the email
     if (!$mail->send()) {

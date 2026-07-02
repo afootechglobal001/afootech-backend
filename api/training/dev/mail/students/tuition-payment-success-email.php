@@ -1,6 +1,6 @@
 <?php
 //// getstudent details
-$selectQuery = "SELECT * FROM STUDENTS_TEMP_TAB WHERE studentId = ?";
+$selectQuery = "SELECT * FROM STUDENTS_TAB WHERE studentId = ?";
 $params = [$studentId];
 $dataTypes = "s"; // 'i' for integer, 's' for string, etc.
 $studentData = selectQuery($conn, $selectQuery, $dataTypes, $params)[0];
@@ -9,16 +9,26 @@ $firstName = $studentData['firstName'];
 $lastName = $studentData['lastName'];
 $emailAddress = $studentData['emailAddress'];
 $phoneNumber = $studentData['phoneNumber'];
-$institutionTypeId = $studentData['institutionTypeId'];
-$institutionName = $studentData['institutionName'];
-$departmentName = $studentData['departmentName'];
-$levelId = $studentData['levelId'];
-$matricNumber = $studentData['matricNumber'];
-$programId = $studentData['programId'];
-$courseId = $studentData['courseId'];
-$durationId = $studentData['durationId'];
+$passport = $studentData['passport'];
+$studentStatusId = $studentData['statusId'];
 $registrationDate = $studentData['createdTime'];
 
+///get student status details
+$studentStatusData = _get_status_details($conn, $studentStatusId);
+$studentStatusName = $studentStatusData['statusName'];
+
+
+//// get student institution details
+$selectQuery = "SELECT * FROM STUDENTS_INSTITUTION_DETAILS_TAB WHERE studentId = ?";
+$params = [$studentId];
+$dataTypes = "s"; // 'i' for integer, 's' for string, etc.
+$studentInstitutionData = selectQuery($conn, $selectQuery, $dataTypes, $params)[0];
+
+$institutionTypeId = $studentInstitutionData['institutionTypeId'];
+$institutionName = $studentInstitutionData['institutionName'];
+$departmentName = $studentInstitutionData['departmentName'];
+$levelId = $studentInstitutionData['levelId'];
+$matricNumber = $studentInstitutionData['matricNumber'];
 
 /// get institution type details
 $institutionTypeData = _get_institution_type_details($conn, $institutionTypeId);
@@ -28,6 +38,20 @@ $institutionTypeName = $institutionTypeData['institutionTypeName'];
 $institutionLevelData = _get_institution_level_details($conn, $institutionTypeId, $levelId);
 $institutionLevelName = $institutionLevelData['levelName'];
 
+/// get student program details
+$selectQuery = "SELECT * FROM STUDENTS_PROGRAM_DETAILS_TAB WHERE studentId = ?";
+$params = [$studentId];
+$dataTypes = "s"; // 'i' for integer, 's' for string, etc.
+$studentProgramData = selectQuery($conn, $selectQuery, $dataTypes, $params)[0];
+
+$programId = $studentProgramData['programId'];
+$courseId = $studentProgramData['courseId'];
+$durationId = $studentProgramData['durationId'];
+$certificateStatusId = $studentProgramData['certificateStatusId'];
+$trainingStatusId = $studentProgramData['trainingStatusId'];
+$startDate = $trainingStatusId == 1 ? $studentProgramData['startDate'] : "Not Started";
+$endDate = $trainingStatusId == 1 ? $studentProgramData['endDate'] : "Not Started";
+$tuitionFee = $studentProgramData['expectedTuitionFee'];
 /// get program details
 $programData = _get_program_details($conn, $programId);
 $programName = $programData['programName'];
@@ -35,12 +59,17 @@ $programName = $programData['programName'];
 /// get course details
 $courseData = _get_course_details($conn, $courseId);
 $courseName = $courseData['courseName'];
+///get training status details
+$trainingStatusData = _get_status_details($conn, $trainingStatusId);
+$trainingStatusName = $trainingStatusData['statusName'];
+
 /// get program course duration details
 $programCourseDurationData = _get_program_course_duration_details($conn, $durationId);
 $durationName = $programCourseDurationData['durationName'];
 
+
 // get payment details
-$selectQuery = "SELECT * FROM PAYMENTS_TAB WHERE studentId = ? AND paymentPurposeId = 'form'";
+$selectQuery = "SELECT * FROM PAYMENTS_TAB WHERE studentId = ? AND paymentPurposeId = 'tuition' ORDER BY payDate DESC LIMIT 1";
 $params = [$studentId];
 $dataTypes = "s"; // 'i' for integer, 's' for string, etc.
 $paymentData = selectQuery($conn, $selectQuery, $dataTypes, $params)[0];
@@ -64,7 +93,7 @@ $paymentStatusData = _get_status_details($conn, $paymentStatusId);
 $paymentStatusName = $paymentStatusData['statusName'];
 
 /// get all setup backend settings details
-$sesstingsData = _get_setup_backend_settings_detail($conn, 'S001');
+$sesstingsData = _get_setup_backend_settings_detail($conn);
 $smtpHost = $sesstingsData['smtpHost'];
 $smtpUsername = $sesstingsData['smtpUsername'];
 $smtpPassword = $sesstingsData['smtpPassword'];
@@ -78,9 +107,9 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-require '../mail/PHPMailer/src/PHPMailer.php';
-require '../mail/PHPMailer/src/SMTP.php';
-require '../mail/PHPMailer/src/Exception.php';
+require '../../mail/PHPMailer/src/PHPMailer.php';
+require '../../mail/PHPMailer/src/SMTP.php';
+require '../../mail/PHPMailer/src/Exception.php';
 
 $mail = new PHPMailer(true);
 
@@ -108,8 +137,8 @@ try {
     $mail->addReplyTo($supportEmail, $senderName); // Reply-to address
 
     $recieverName = $firstName . ' ' . $lastName;
-    $sendTo = "afootech2016@gmail.com";  // Recipient email address
-    $subject = "$recieverName Attempted Payment for $programName Training Registration on $currentDate";
+    $sendTo = $emailAddress;
+    $subject = "$recieverName Admission Successful - $programName - $courseName - $studentId";
 
 
     $message = '
@@ -120,11 +149,11 @@ try {
 
         <div style="padding:30px; color:#333;">
 
-            <h2 style="color:#002B71; margin-top:0;">Payment Attempted</h2>
+            <h2 style="color:#002B71; margin-top:0;">Admission Successful</h2>
 
             <p>Dear <strong>' . $recieverName . '</strong>,</p>
 
-            <p>Your attempt to register for the <strong>' . $programName . '</strong> program has been recorded. Below are your submitted details:</p>
+            <p>Your admission for the <strong>' . $programName . '</strong> program has been successfully completed. Below are your submitted details:</p>
 
             <!-- ================= BIO DATA ================= -->
             <h3 style="color:#002B71; margin-top:30px;">Bio Data Details</h3>
@@ -145,15 +174,30 @@ try {
                     <td style="border:1px solid #eee;"><strong>Phone Number</strong></td>
                     <td style="border:1px solid #eee;">' . $phoneNumber . '</td>
                 </tr>
+                <tr>
+                    <td style="border:1px solid #eee;"><strong>Registration Status</strong></td>
+                    <td style="border:1px solid #eee;">' . $studentStatusName . '</td>
+                </tr>
                 <tr style="background:#f9fafb;">
                     <td style="border:1px solid #eee;"><strong>Registration Date</strong></td>
                     <td style="border:1px solid #eee;">' . $registrationDate . '</td>
                 </tr>                
             </table>
+            
+            <!-- ================= DOCUMENTS ================= -->
+            <h3 style="color:#002B71; margin-top:30px;">Uploaded Documents</h3>
+            <div style="margin-top:10px;">
+                <p><strong>Passport Photograph:</strong></p>
+                <img src="' . $websiteUrl . '/uploaded_files/studentPassport/' . $passport . '" width="120" style="border-radius:6px; border:1px solid #ddd; margin-bottom:15px;">
+            </div>
 
             <!-- ================= INSTITUTION DETAILS ================= -->
             <h3 style="color:#002B71; margin-top:30px;">Student Institution Details</h3>
             <table width="100%" cellpadding="8" cellspacing="0" style="border-collapse:collapse; font-size:14px;">
+                <tr style="background:#f9fafb;">
+                    <td style="border:1px solid #eee;"><strong>Student ID</strong></td>
+                    <td style="border:1px solid #eee;">' . $studentId . '</td>
+                </tr>
                 <tr style="background:#f9fafb;">
                     <td style="border:1px solid #eee;"><strong>Institution Class</strong></td>
                     <td style="border:1px solid #eee;">' . $institutionTypeName . '</td>
@@ -191,6 +235,18 @@ try {
                     <td style="border:1px solid #eee;"><strong>Training Duration</strong></td>
                     <td style="border:1px solid #eee;">' . $durationName . '</td>
                 </tr>
+                <tr style="background:#f9fafb;">
+                    <td style="border:1px solid #eee;"><strong>Training Status</strong></td>
+                    <td style="border:1px solid #eee;">' . $trainingStatusName . '</td>
+                </tr>
+                <tr style="background:#f9fafb;">
+                    <td style="border:1px solid #eee;"><strong>Training Start Date</strong></td>
+                    <td style="border:1px solid #eee;">' . $startDate . '</td>
+                </tr>
+                <tr style="background:#f9fafb;">
+                    <td style="border:1px solid #eee;"><strong>Training End Date</strong></td>
+                    <td style="border:1px solid #eee;">' . $endDate . '</td>
+                </tr>
             </table>
 
             <!-- ================= PAYMENT DETAILS ================= -->
@@ -222,7 +278,8 @@ try {
                 </tr>
             </table>
             
-             <p style="margin-top:30px;">
+            <p><strong style="color:#ff0000;">For SIWES/IT Students Only:</strong> Visit our nearest office to ensure all necessary documentation (SIWES/IT letter, Logbook and other required documents) is submitted before the training begins. For more information, please contact our support team on <strong>07050903886, 08127000262</strong> or reply to this email.</p>
+            <p style="margin-top:30px;">
                 Please keep this email for your records. If you notice any discrepancy, contact us immediately.
             </p>
 
@@ -252,7 +309,7 @@ try {
     $mail->addAddress($supportEmail, $senderName);  // Support email
 
     // Attach images
-    $mail->addEmbeddedImage('../mail/img/mail_header.jpg', 'mail_header');
+    $mail->addEmbeddedImage('../../mail/img/mail_header.jpg', 'mail_header');
 
     // Send the email
     if (!$mail->send()) {

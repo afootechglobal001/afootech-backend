@@ -102,7 +102,7 @@ try {
 
 
 	/// get paystackKey from SETUP_BACKEND_SETTINGS_TAB
-	$sesstingsData = _get_setup_backend_settings_detail($conn, 'S001');
+	$sesstingsData = _get_setup_backend_settings_detail($conn);
 	$paystackPaymentKey = $sesstingsData['paystackPaymentKey'];
 	$paystackSecretKey = $sesstingsData['paystackSecretKey'];
 
@@ -117,7 +117,7 @@ try {
 	insertQuery($conn, $insertQuery, $dataTypes, $params);
 
 	//// payment attempt email notification
-	require_once('../mail/students/payment-attempt-email.php');
+	require_once('../mail/students/registration-payment-attempt-email.php');
 
 	$response = [
 		'response' => 200,

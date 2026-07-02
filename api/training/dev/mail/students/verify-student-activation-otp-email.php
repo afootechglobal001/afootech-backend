@@ -27,9 +27,9 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-require '../mail/PHPMailer/src/PHPMailer.php';
-require '../mail/PHPMailer/src/SMTP.php';
-require '../mail/PHPMailer/src/Exception.php';
+require '../../mail/PHPMailer/src/PHPMailer.php';
+require '../../mail/PHPMailer/src/SMTP.php';
+require '../../mail/PHPMailer/src/Exception.php';
 
 $mail = new PHPMailer(true);
 
@@ -60,7 +60,7 @@ try {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     $sendTo = $emailAddress;
     $recieverName = $firstName . ' ' . $lastName;
-    $subject = "Registration Verification OTP -- $otp";
+    $subject = "$recieverName Account Verification OTP -- $otp";
 
     $message = '
 <div style="width:100%; background:#f4f6f8; padding:30px 0; font-family:Arial, Helvetica, sans-serif;">
@@ -130,7 +130,7 @@ try {
     $mail->addAddress($supportEmail, $senderName); // Reply-to address
 
     // Attach images
-    $mail->addEmbeddedImage('../mail/img/mail_header.jpg', 'mail_header');
+    $mail->addEmbeddedImage('../../mail/img/mail_header.jpg', 'mail_header');
 
     // Send the email
     if (!$mail->send()) {

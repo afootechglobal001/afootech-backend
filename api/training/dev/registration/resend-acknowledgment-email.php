@@ -22,7 +22,7 @@ try {
 	$studentId = $studentData['studentId'];
 
 	/* Send OTP email */
-	require_once('../mail/students/training-registration-success-email.php');
+	require_once('../mail/students/registration-payment-success-email.php');
 
 	$response = [
 		'response' => 200,

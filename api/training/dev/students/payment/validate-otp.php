@@ -1,9 +1,10 @@
 <?php
-require_once '../config/connection.php';
+require_once '../../config/connection.php';
 try {
 	if (!$checkBasicSecurity) {
 		throw new ForbiddenException("Unauthorized access! Permission denied to access this resource.");
 	}
+
 
 	//////////////////declaration of variables//////////////////////////////////////
 	$studentId = $_GET['studentId'];
@@ -23,17 +24,20 @@ try {
 	}
 	$studentData = $studentData[0];
 	$studentId = $studentData['studentId'];
-	$studentName = $studentData['firstName'] . ' ' . $studentData['lastName'];
 
-	//// get student institution details
-	$selectQuery = "SELECT * FROM STUDENTS_INSTITUTION_DETAILS_TAB WHERE studentId = ?";
+	/// get if student training status is active from STUDENTS_PROGRAM_DETAILS_TAB
+	$selectQuery = "SELECT * FROM STUDENTS_PROGRAM_DETAILS_TAB WHERE studentId = ? AND trainingStatusId = 1";
 	$params = [$studentId];
-	$dataTypes = "s"; // 'i' for integer, 's' for string, etc.
-	$studentInstitutionData = selectQuery($conn, $selectQuery, $dataTypes, $params)[0];
-
-	$institutionName = $studentInstitutionData['institutionName'];
-	$departmentName = $studentInstitutionData['departmentName'];
-	$matricNumber = $studentInstitutionData['matricNumber'];
+	$dataTypes = "s"; // 'i' for integer, 's' for string
+	$studentProgramData = selectQuery($conn, $selectQuery, $dataTypes, $params);
+	if (empty($studentProgramData)) {
+		throw new ForbiddenException("ACCESS DENIED! Your training status is not active. Please contact our support team for assistance.");
+	}
+	$totalTuitionFeesBalance = $studentProgramData[0]['totalTuitionFeesBalance'];
+	if ($totalTuitionFeesBalance <= 0) {
+		require_once('../../mail/students/tuition-payment-success-email.php');
+		throw new ConflictException("PAYMENT ALREADY MADE! Check your email for your payment confirmation and receipt. If you have not received any email, please contact our support team for assistance.");
+	}
 
 
 	/// get student program details
@@ -44,6 +48,7 @@ try {
 
 	$programId = $studentProgramData['programId'];
 	$courseId = $studentProgramData['courseId'];
+	$durationId = $studentProgramData['durationId'];
 	$startDate = $studentProgramData['startDate'];
 	$endDate = $studentProgramData['endDate'];
 	/// get program details
@@ -54,20 +59,36 @@ try {
 	$courseData = _get_course_details($conn, $courseId);
 	$courseName = $courseData['courseName'];
 
+
+	/// get program course duration details
+	$programCourseDurationData = _get_program_course_duration_details($conn, $durationId);
+	$durationName = $programCourseDurationData['durationName'];
+	$tuitionFee = $programCourseDurationData['tuitionFee'];
+
+
+	/* Send OTP email */
+	require_once('../../mail/students/verify-student-activation-otp-email.php');
+
 	$response = [
 		'response' => 200,
 		'success' => true,
-		'message' => "STUDENT REGISTRATION VERIFIED SUCCESSFULLY! Proceed to print your acceptance letter and make payment for your training program.",
+		'message' => "STUDENT VERIFICATION OTP EMAIL SENT SUCCESSFULLY! Please check your email INBOX or SPAM folder for the OTP.",
 		'data' => [
-			'studentId' => $studentId,
-			'studentName' => $studentName,
-			'institutionName' => $institutionName,
-			'departmentName' => $departmentName,
-			'matricNumber' => $matricNumber,
-			'programName' => $programName,
-			'courseName' => $courseName,
-			'startDate' => $startDate,
-			'endDate' => $endDate
+			'studentData' => [
+				'studentId' => $studentId,
+				'emailAddress' => $emailAddress,
+				'fullName' => $studentData['firstName'] . ' ' . $studentData['lastName'],
+				'phoneNumber' => $studentData['phoneNumber'],
+			],
+			'programData' => [
+				'durationId' => $durationId,
+				'programName' => $programName,
+				'courseName' => $courseName,
+				'durationName' => $durationName,
+				'startDate' => $startDate,
+				'endDate' => $endDate,
+				'tuitionFee' => $tuitionFee,
+			]
 		]
 	];
 
