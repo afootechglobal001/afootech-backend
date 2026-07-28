@@ -92,7 +92,6 @@ try {
 } catch (Throwable $e) {
 	ErrorHandler::handle($e);
 }
-end:
 http_response_code($response['response']); // sets HTTP status
 echo json_encode($response);
 ?>

@@ -131,3 +131,12 @@ function _get_payment_method_details($conn, $paymentMethodId)
     $getResult = selectQuery($conn, $getQuery, 's', $getParams);
     return ($getResult[0]);
 }
+
+////// get ROLE details
+function _get_role_details($conn, $roleId)
+{
+    $getQuery = "SELECT roleId, roleName, rolePermissionIds FROM ROLE_TAB WHERE roleId = ?";
+    $getParams = [$roleId];
+    $getResult = selectQuery($conn, $getQuery, 's', $getParams);
+    return ($getResult[0]);
+}

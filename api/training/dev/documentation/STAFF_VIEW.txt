@@ -1,0 +1,3 @@
+CREATE OR REPLACE VIEW STAFF_VIEW AS 
+SELECT staffId, accessKey, firstName, lastName, emailAddress, phoneNumber, roleId, statusId, lastLoginTime, createdBy, updatedBy, createdTime, updatedTime 
+FROM STAFF_TAB;

@@ -19,9 +19,10 @@ $appVersion = "1.0.0";
 $_HOST_NAME = "23.106.46.178";
 $_DB_USERNAME = "afootechglobal_admin";
 $_DB_PASSWORD = "18GK$2gHt@?w";
+$_DB_NAME = "afootechglobal_training_db";
 
 $conn = mysqli_connect($_HOST_NAME, $_DB_USERNAME, $_DB_PASSWORD) or die("Unable to connect to MySQL");
-mysqli_select_db($conn, "afootechglobal_training_db") or die("Could not select database");
+mysqli_select_db($conn, $_DB_NAME) or die("Could not select database");
 mysqli_set_charset($conn, "utf8mb4");
 
 /////////////////////////////////////////////////////////////////
