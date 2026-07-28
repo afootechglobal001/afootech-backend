@@ -67,7 +67,22 @@ try {
     insertQuery($conn, $insertQuery, "sssssssis", $insertParams);
 
     ////////////////// Fetch Created Staff //////////////////
-    $selectQuery = "SELECT * FROM STAFF_VIEW WHERE staffId = ?";
+    $selectQuery = "SELECT 
+	staffId, 
+	accessKey, 
+	firstName, 
+	lastName, 
+	emailAddress, 
+	phoneNumber, 
+	roleId, 
+	statusId, 
+	lastLoginTime, 
+	createdBy, 
+	updatedBy, 
+	createdTime, 
+	updatedTime 
+	FROM STAFF_TAB 
+    WHERE staffId = ?";
     $selectParams = [$staffId];
     $staffData = selectQuery($conn, $selectQuery, 's', $selectParams)[0];
     $roleId = $staffData['roleId'];

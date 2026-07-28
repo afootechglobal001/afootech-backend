@@ -2,7 +2,7 @@
 require_once '../../config/connection.php';
 try {
     if (!$checkBasicSecurity) {
-        throw new UnauthorizedException("Unauthorized access! Please log in and try again.");
+        throw new ForbiddenException("Unauthorized access! Please log in and try again.");
     }
 
     // ////// get all input parameters

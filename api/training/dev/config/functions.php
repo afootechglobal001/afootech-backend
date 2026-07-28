@@ -1,7 +1,7 @@
 <?php
 function _staff_accesskey_validation($conn, $accessKey)
 {
-    $getQuery = "SELECT * FROM STAFF_VIEW WHERE accessKey=? AND statusId=?";
+    $getQuery = "SELECT * FROM STAFF_TAB WHERE accessKey=? AND statusId=?";
     $getParams = [$accessKey, 1];
     $getResult = selectQuery($conn, $getQuery, 'si', $getParams);
     $count = count($getResult);

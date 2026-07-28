@@ -31,7 +31,9 @@ try {
     }
 
     if (!empty($statusId)) {
-        $conditions[] = "statusId IN ($statusId)";
+        $conditions[] = "statusId = ?";
+        $params[] = $statusId;
+        $types .= "i";
     }
 
     $extraWhere = '';
@@ -54,10 +56,22 @@ try {
     $params = array_merge([$searchValue, $searchValue, $searchValue], $params);
     $types = "sss" . $types;
 
-    $selectQuery = "
-        SELECT *
-        FROM STAFF_VIEW
-        WHERE $searchClause
+    $selectQuery = "SELECT 
+	staffId, 
+	accessKey, 
+	firstName, 
+	lastName, 
+	emailAddress, 
+	phoneNumber, 
+	roleId, 
+	statusId, 
+	lastLoginTime, 
+	createdBy, 
+	updatedBy, 
+	createdTime, 
+	updatedTime 
+	FROM STAFF_TAB 
+	WHERE $searchClause
         $extraWhere
         ORDER BY firstName ASC
     ";
