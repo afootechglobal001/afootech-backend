@@ -117,4 +117,3 @@ try {
 
 http_response_code($response['response'] ?? 500);
 echo json_encode($response);
-?>
