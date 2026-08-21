@@ -11,7 +11,7 @@ try {
 	validateEmptyField($paymentId, "PAYMENT ID");
 
 	//// update PAYMENTS_TAB
-	$updateQuery = "UPDATE `PAYMENTS_TAB` SET `statusId` = 4, `payDate` = NOW() WHERE paymentId = '$paymentId'";
+	$updateQuery = "UPDATE `PAYMENTS_TAB` SET `statusId` = 4, `updatedTime` = NOW() WHERE paymentId = '$paymentId'";
 	updateQuery($conn, $updateQuery);
 
 	$response = [

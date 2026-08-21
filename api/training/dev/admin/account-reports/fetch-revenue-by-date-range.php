@@ -48,22 +48,26 @@ try {
     foreach ($dataQuery as &$fetchDataQuery) {
         $payDate = $fetchDataQuery['payDate'];
 
-        /// confirm if any record on this date has NOT been viewed by the admin before
-        $unviewedQuery = selectQuery($conn, "
-            SELECT paymentId 
-            FROM PAYMENTS_TAB 
-            WHERE DATE(payDate) = '$payDate' 
-            AND statusId = 5 
-            AND (
+        //// get each date details of the revenue
+        $eachDateQuery = " SELECT
+        IFNULL((SELECT SUM(amount) FROM PAYMENTS_TAB WHERE DATE(payDate) = '$payDate' AND statusId=5 AND paymentMethodId='PM001'), 0) AS sumCreditCardPayments,
+        IFNULL((SELECT SUM(amount) FROM PAYMENTS_TAB WHERE DATE(payDate) = '$payDate' AND statusId=5 AND paymentMethodId='PM002'), 0) AS sumBankTransferPayments,
+        IFNULL((SELECT SUM(paystackCharges) FROM PAYMENTS_TAB WHERE DATE(payDate) = '$payDate' AND statusId=5), 0) AS sumPaystackCharges,
+        IFNULL((SELECT SUM(paystackRemittance) FROM PAYMENTS_TAB WHERE DATE(payDate) = '$payDate' AND statusId=5), 0) AS sumPaystackRemittance,
+
+        IFNULL((SELECT COUNT(paymentId) FROM PAYMENTS_TAB WHERE DATE(payDate) = '$payDate' AND statusId=5 AND paymentMethodId='PM001'), 0) AS countCreditCardPayments,
+        IFNULL((SELECT COUNT(paymentId) FROM PAYMENTS_TAB WHERE DATE(payDate) = '$payDate' AND statusId=5 AND paymentMethodId='PM002'), 0) AS countBankTransferPayments,
+        IFNULL((SELECT COUNT(paymentId) FROM PAYMENTS_TAB WHERE DATE(payDate) = '$payDate' AND statusId=5 AND (
                 viewedBy IS NULL 
                 OR viewedBy = '' 
                 OR FIND_IN_SET('$loginStaffId', viewedBy) = 0
-            )
-        ");
-
-        $unviewedData = count($unviewedQuery);
+            )), 0) AS countUnviewedPayments
+   ";
+        $eachDateData = selectQuery($conn, $eachDateQuery)[0];
+        $fetchDataQuery['eachDateData'] = $eachDateData;
 
         /// TRUE if there is at least one unviewed record
+        $unviewedData = $eachDateData['countUnviewedPayments'] ?? 0;
         $fetchDataQuery['paymentViewed'] = !($unviewedData > 0);
     }
 

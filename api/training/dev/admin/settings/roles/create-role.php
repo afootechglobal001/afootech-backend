@@ -13,8 +13,8 @@ try {
     }
 
     ////////////////// Variables //////////////////
-    $roleName          = strtoupper(trim($data['roleName'] ?? ''));
-    $roleDescription   = strtoupper(trim($data['roleDescription'] ?? ''));
+    $roleName = strtoupper(trim($data['roleName'] ?? ''));
+    $roleDescription = strtoupper(trim($data['roleDescription'] ?? ''));
     $rolePermissionIds = $data['rolePermissionIds'] ?? [];
 
     ////////////////// Validation //////////////////
@@ -34,9 +34,7 @@ try {
 
     ////////////////// Generate Role ID //////////////////
     $sequence = _get_sequence_count($conn, 'R');
-    $array = json_decode($sequence, true);
-    $no = $array[0]['no'];
-    $roleId = 'R' . $no;
+    $roleId = 'R' . $sequence['no'] . date("Ymdhis");
 
     ////////////////// Insert Role //////////////////
     // Convert rolePermissionIds array to comma-separated string
@@ -81,8 +79,8 @@ try {
     $response = [
         'response' => 200,
         'success' => true,
-        'message'  => "ROLE CREATED SUCCESSFULLY!",
-        'data'     => $roleData
+        'message' => "ROLE CREATED SUCCESSFULLY!",
+        'data' => $roleData
     ];
 
 } catch (Throwable $e) {

@@ -54,6 +54,19 @@ try {
 		$program['activeStudentsCount'] = $activeStudentsCountResult['activeStudentsCount'] ?? 0;
 	}
 
+	$selectQuery = "
+        SELECT 
+            DATE(payDate) AS payDate,
+            SUM(CASE WHEN statusId = 5 THEN amount ELSE 0 END) AS totalSuccessfulFees,
+            SUM(CASE WHEN statusId = 3 THEN amount ELSE 0 END) AS totalPendingFees,
+            SUM(CASE WHEN statusId = 4 THEN amount ELSE 0 END) AS totalCancelledFees
+        FROM PAYMENTS_TAB
+        WHERE DATE(payDate) BETWEEN '$dateFrom' AND '$dateTo' AND paymentMethodId!='PM005'
+        GROUP BY DATE(payDate)
+        ORDER BY DATE(payDate) DESC
+    ";
+	$paymentData = selectQuery($conn, $selectQuery);
+
 
 	///////////////// Response //////////////////
 	$response = [
@@ -67,6 +80,7 @@ try {
 			'systemStatistics' => $systemStatistics,
 			'financialStatistics' => $financialStatistics,
 			'programData' => $programData,
+			'paymentData' => $paymentData
 		],
 	];
 } catch (Throwable $e) {

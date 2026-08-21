@@ -10,7 +10,7 @@ try {
         throw new UnauthorizedException("SESSION EXPIRED! Please LogIn Again.");
     }
     // ////// get all input parameters  
-    $paymentId = $_GET['paymentId'];
+    $paymentId = $data['paymentId'];
     //// validate input parameters
     validateEmptyField($paymentId, 'PAYMENT ID');
 
@@ -24,37 +24,16 @@ try {
         throw new BadRequestException("INVALID PAYMENT ID! Check payment ID and try again.");
     }
 
-    $paymentDatafetch = mysqli_fetch_assoc($dataQuery);
-    $createdTime = $paymentDatafetch['createdTime'];
-
-    // Convert to timestamps
-    $createdTimestamp = strtotime($createdTime);
-    $currentTimestamp = time();
-
-    // Difference in seconds
-    $timeDifference = $currentTimestamp - $createdTimestamp;
-
-    // 1 hour = 3600 seconds
-    if ($timeDifference < 3600) {
-        throw new BadRequestException("PAYMENT VERIFICATION NOT ALLOWED! Payment verification is only allowed after 1 hour of payment creation.");
-    }
-
-
-    /// get secret key for the branch
-    $sesstingsData = _get_setup_backend_settings_detail($conn);
-    $secretKey = $sesstingsData['paystackSecretKey'];
-
     ///// update PAYMENTS_TAB to verify the staff that is verifying the payment
-    $updateQuery = "UPDATE PAYMENTS_TAB SET confirmedBy=? WHERE paymentId=?";
-    $updateParams = [$loginStaffId, $paymentId];
-    updateQuery($conn, $updateQuery, 'ss', $updateParams);
+    $updateQuery = "UPDATE PAYMENTS_TAB SET statusId=3 WHERE paymentId=?";
+    $updateParams = [$paymentId];
+    updateQuery($conn, $updateQuery, 's', $updateParams);
 
     $response = [
         'response' => 200,
         'success' => true,
-        'message' => "PROCEED TO PAYMENT VERIFICATION",
-        'paymentData' => $paymentDatafetch,
-        'secretKey' => $secretKey,
+        'message' => "PAYMENT RECORD UPDATED! Payment record has been updated for reconciliation.",
+
     ];
 
 

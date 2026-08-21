@@ -140,3 +140,21 @@ function _get_role_details($conn, $roleId)
     $getResult = selectQuery($conn, $getQuery, 's', $getParams);
     return ($getResult[0]);
 }
+
+//// for registered students details
+function _get_registered_details($conn, $studentId)
+{
+    $getQuery = "SELECT studentId, firstName, lastName, emailAddress, phoneNumber, passport, statusId FROM STUDENTS_TAB WHERE studentId=?";
+    $getParams = [$studentId];
+    $getResult = selectQuery($conn, $getQuery, 's', $getParams);
+    return ($getResult[0]);
+}
+
+//// for prospective students details
+function _get_prospective_details($conn, $studentId)
+{
+    $getQuery = "SELECT *  FROM STUDENTS_TEMP_TAB WHERE studentId=?";
+    $getParams = [$studentId];
+    $getResult = selectQuery($conn, $getQuery, 's', $getParams);
+    return ($getResult[0]);
+}
