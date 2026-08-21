@@ -42,6 +42,7 @@ try {
 	$params = [$studentId, $durationId];
 	$dataTypes = "ss"; // 'i' for integer, 's' for string
 	$studentProgramData = selectQuery($conn, $selectQuery, $dataTypes, $params);
+	$studentProgramId = $studentProgramData[0]['studentProgramId'] ?? null;
 	$totalTuitionFeesBalance = $studentProgramData[0]['totalTuitionFeesBalance'];
 	if ($totalTuitionFeesBalance <= 0) {
 		require_once('../../mail/students/tuition-payment-success-email.php');
@@ -62,10 +63,10 @@ try {
 	$paymentPurposeId = 'tuition'; // tuition fees
 	$statusId = 3; // pending
 	$insertQuery = "INSERT INTO `PAYMENTS_TAB`
-	(`paymentId`, `studentId`, `emailAddress`, `phoneNumber`, `paymentPurposeId`, `paystackPaymentKey`, `amount`, `paymentMethodId`, `statusId`, `createdTime`, `payDate`) VALUES
-	(?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
-	$params = [$paymentId, $studentId, $emailAddress, $phoneNumber, $paymentPurposeId, $paystackPaymentKey, $totalTuitionFeesBalance, $paymentMethodId, $statusId];
-	$dataTypes = "ssssssdsi"; // 'i' for integer, 's' for string, etc.
+	(`paymentId`, `studentId`, `studentProgramId`, `emailAddress`, `phoneNumber`, `paymentPurposeId`, `paystackPaymentKey`, `amount`, `paymentMethodId`, `statusId`, `createdTime`, `payDate`) VALUES
+	(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
+	$params = [$paymentId, $studentId, $studentProgramId, $emailAddress, $phoneNumber, $paymentPurposeId, $paystackPaymentKey, $totalTuitionFeesBalance, $paymentMethodId, $statusId];
+	$dataTypes = "sssssssdsi"; // 'i' for integer, 's' for string, etc.
 	insertQuery($conn, $insertQuery, $dataTypes, $params);
 
 	//// payment attempt email notification

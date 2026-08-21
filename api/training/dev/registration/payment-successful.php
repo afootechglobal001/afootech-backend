@@ -62,11 +62,15 @@ try {
 	$levelId = $studentData['levelId'];
 	$matricNumber = $studentData['matricNumber'];
 
+	////////////////// Generate user ID //////////////////
+	$sequence = _get_sequence_count($conn, 'SP');
+	$studentProgramId = 'SP' . $sequence['no'] . date("Ymdhis");
+
 	$insertQuery = "INSERT INTO `STUDENTS_INSTITUTION_DETAILS_TAB`
-	(`studentId`, `institutionTypeId`, `institutionName`, `departmentName`, `levelId`, `matricNumber`, `createdTime`) VALUES 
-	(?, ?, ?, ?, ?, ?, NOW())";
-	$params = [$studentId, $institutionTypeId, $institutionName, $departmentName, $levelId, $matricNumber];
-	$dataTypes = "ssssss"; // 'i' for integer, 's' for string, etc.
+	(`studentId`, `studentProgramId`, `institutionTypeId`, `institutionName`, `departmentName`, `levelId`, `matricNumber`, `createdTime`) VALUES 
+	(?, ?, ?, ?, ?, ?, ?, NOW())";
+	$params = [$studentId, $studentProgramId, $institutionTypeId, $institutionName, $departmentName, $levelId, $matricNumber];
+	$dataTypes = "sssssss"; // 'i' for integer, 's' for string, etc.
 	insertQuery($conn, $insertQuery, $dataTypes, $params);
 
 
@@ -84,16 +88,16 @@ try {
 	$tuitionFee = $programCourseDurationData['tuitionFee'];
 
 	$insertQuery = "INSERT INTO `STUDENTS_PROGRAM_DETAILS_TAB`
-	(`studentId`, `programId`, `courseId`, `durationId`, `trainingYear`, `certificateUrl`, `certificateStatusId`, `trainingStatusId`, `startDate`, `endDate`, `expectedTuitionFee`, `totalTuitionFeesBalance`) VALUES 
-	(?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?)";
-	$params = [$studentId, $programId, $courseId, $durationId, $trainingYear, $certificateUrl, $certificateStatusId, $trainingStatusId, $tuitionFee, $tuitionFee];
-	$dataTypes = "ssssisiidd"; // 'i' for integer, 's' for string, etc.
+	(`studentId`,`studentProgramId`,  `programId`, `courseId`, `durationId`, `trainingYear`, `certificateUrl`, `certificateStatusId`, `trainingStatusId`, `startDate`, `endDate`, `expectedTuitionFee`, `totalTuitionFeesBalance`) VALUES 
+	(?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?)";
+	$params = [$studentId, $studentProgramId, $programId, $courseId, $durationId, $trainingYear, $certificateUrl, $certificateStatusId, $trainingStatusId, $tuitionFee, $tuitionFee];
+	$dataTypes = "sssssisiidd"; // 'i' for integer, 's' for string, etc.
 	insertQuery($conn, $insertQuery, $dataTypes, $params);
 
 	//// update PAYMENTS_TAB
-	$updateQuery = "UPDATE `PAYMENTS_TAB` SET `paystackId` = ?, `paystackCharges` = ?, `paystackRemittance` = amount - $paystackCharges, `statusId` = 5, `payDate` = NOW() WHERE paymentId = ?";
-	$params = [$paystackId, $paystackCharges, $paymentId];
-	$dataTypes = "sds"; // 'i' for integer, 's' for string, etc.
+	$updateQuery = "UPDATE `PAYMENTS_TAB` SET `studentProgramId`= ?, `paystackId` = ?, `paystackCharges` = ?, `paystackRemittance` = amount - $paystackCharges, `statusId` = 5, `payDate` = NOW() WHERE paymentId = ?";
+	$params = [$studentProgramId, $paystackId, $paystackCharges, $paymentId];
+	$dataTypes = "ssds"; // 'i' for integer, 's' for string, etc.
 	updateQuery($conn, $updateQuery, $dataTypes, $params);
 
 
